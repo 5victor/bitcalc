@@ -49,8 +49,8 @@ void BitCalc::init()
         {
             title->setNum(i);
         }
-        title->setFrameShape(QFrame::Box);
-        title->setFixedSize(15,10);
+        //title->setFrameShape(QFrame::Box);
+        title->setFixedWidth(13);
         title->setAlignment(Qt::AlignHCenter);
         titleLayout->addWidget(title);
     }
@@ -66,7 +66,7 @@ void BitCalc::init()
         bit->setNum(0);
         QObject::connect(bit, SIGNAL(BitLableClicked(int)),
                          this, SLOT(BitLableClicked(int)));
-        bit->setFixedSize(15, 10);
+        bit->setFixedWidth(13);
         bit->setAlignment(Qt::AlignHCenter);
         bitLayout->addWidget(bit);
     }
@@ -76,7 +76,7 @@ void BitCalc::init()
     ctrlLayout = new QHBoxLayout;
     ctrlLayout->setSpacing(30);
     text = new QLineEdit;
-    QObject::connect(text, SIGNAL(textChanged(QString)), this, SLOT(textChange(QString)));
+    //QObject::connect(text, SIGNAL(textChanged(QString)), this, SLOT(textChange(QString)));
     QPushButton *set = new QPushButton;
     QPushButton *clear = new QPushButton;
     QPushButton *quit = new QPushButton;
@@ -133,13 +133,7 @@ void BitCalc::BitLableClicked(int index)
 
 void BitCalc::set()
 {
-    int i;
-    for (i = 0; i < MAX_BIT; i++)
-    {
-        labels[i]->setValue(1);
-    }
-    this->value = 0xFFFFFFFF;
-    this->setText(0xFFFFFFFF);
+    setValueFormStr(text->text());
 }
 
 void BitCalc::clear()
@@ -153,22 +147,30 @@ void BitCalc::clear()
     this->setText(0);
 }
 
-void BitCalc::textChange(QString str)
+void BitCalc::setValueFormStr(QString str)
 {
+
     int ret;
     unsigned int data;
     int i;
-    for (i = 0; i < str.length(); i++)
-    {
-        char c = str.data()[i];
-        if (((c | 0x20) != 'x') || c < '0' || ((c > '9') && c < 'A') || !((c | 0x20) >= 'a' && (c | 0x20) <= 'f'))
-        {
-            QMessageBox::show(this, "error", "plese input valid string");
-        }
-    }
-    ret = sscanf(str.data(), "0x%x", &data);
+
+    ret = sscanf(str.toAscii().data(), "0x%x", &data);
     if (ret != 1)
     {
-        QMessageBox::show(this, "input err", "please input like 0xABCDEF12");
+        QMessageBox::information(this, "input err", "please input valid hex value");
     }
+
+    for (i = 0; i < sizeof(data) * 8; i++)
+    {
+        if ((data >> i) & 1)
+        {
+            labels[i]->setValue(1);
+        }
+        else
+        {
+            labels[i]->setValue(0);
+        }
+    }
+    this->value = data;
+
 }

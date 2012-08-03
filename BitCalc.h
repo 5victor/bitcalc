@@ -35,12 +35,13 @@ protected:
     BitLable *labels[MAX_BIT];
 
     void setText(unsigned int n);
+    void setValue(QString s);
+    void setValueFormStr(QString s);
 
 public slots:
     void set();
     void clear();
     void BitLableClicked(int index);
-    void textChange(QString str);
 };
 
 #endif // BITCALC_H
